@@ -83,11 +83,11 @@ class Program
         List<Card> PlayerHand = new List<Card>();
 
         // Add cards from deck to player's hand with searching by name(it's need to set with randomizer)
-        PlayerHand.Add(Deck.Find(a => "King Diamonds" == a.Name) ?? throw new InvalidOperationException("Card not found"));
-        PlayerHand.Add(Deck.Find(a => "3 Clubs" == a.Name) ?? throw new InvalidOperationException("Card not found"));
-        PlayerHand.Add(Deck.Find(a => "4 Hearts" == a.Name) ?? throw new InvalidOperationException("Card not found"));
-        PlayerHand.Add(Deck.Find(a => "9 Hearts" == a.Name) ?? throw new InvalidOperationException("Card not found"));
         PlayerHand.Add(Deck.Find(a => "Jack Diamonds" == a.Name) ?? throw new InvalidOperationException("Card not found"));
+        PlayerHand.Add(Deck.Find(a => "Jack Clubs" == a.Name) ?? throw new InvalidOperationException("Card not found"));
+        PlayerHand.Add(Deck.Find(a => "4 Spades" == a.Name) ?? throw new InvalidOperationException("Card not found"));
+        PlayerHand.Add(Deck.Find(a => "4 Hearts" == a.Name) ?? throw new InvalidOperationException("Card not found"));
+        PlayerHand.Add(Deck.Find(a => "4 Diamonds" == a.Name) ?? throw new InvalidOperationException("Card not found"));
 
         foreach (Card card in PlayerHand)
         {
@@ -118,46 +118,16 @@ class Program
     // Function for simple realisation of combination precedence through if else structure
     static private void CombinationChecking(List<Card> hand)
     {
-        if (RoyalFlash(hand))
-        {
-            return;
-        }
-        else if (StreetFlash(hand))
-        {
-            return;
-        }
-        else if (Quadro(hand))
-        {
-            return;
-        }
-        else if (FullHouse(hand))
-        {
-            return;
-        }
-        else if (Flash(hand))
-        {
-            return;
-        }
-        else if (Street(hand))
-        {
-            return;
-        }
-        else if (Trio(hand))
-        {
-            return;
-        }
-        else if (TwoPairs(hand))
-        {
-            return;
-        }
-        else if (Pair(hand))
-        {
-            return;
-        }
-        else if (HigherCard(hand))
-        {
-            return;
-        }
+        if (RoyalFlash(hand)) return;
+        if (StreetFlash(hand)) return;
+        if (Quadro(hand)) return;
+        if (FullHouse(hand)) return;
+        if (Flash(hand)) return;
+        if (Street(hand)) return;
+        if (Trio(hand)) return;
+        if (TwoPairs(hand)) return;
+        if (Pair(hand)) return;
+        if (HigherCard(hand)) return;
     }
 
     // Functions for determining combinations
@@ -192,25 +162,20 @@ class Program
     static private bool TwoPairs(List<Card> hand)
     {
         // Same as with 1 pair
-        int i = 0;
+        List<Card> combo = new List<Card>();
         foreach (var card in Counter(hand))
         {
             if (card.Value == 2)
             {
-                List<Card> combo = hand.FindAll(a => a.Value == card.Key);
-                i++;
-                // But here i skip last checked element for continue searching a second pair after detected first
-                foreach (var card2 in Counter(hand).Skip(i))
+                combo.AddRange(hand.FindAll(a => a.Value == card.Key));
+                // But here we continue cycle to find second pair
+                if(combo.Count == 2)
                 {
-                    if (card2.Value == 2)
-                    {
-                        combo.AddRange(hand.FindAll(a => a.Value == card2.Key));
-                        Console.WriteLine($"Two pairs: {combo[0].Name} {combo[1].Name} and {combo[2].Name} {combo[3].Name}");
-                        return true;
-                    }
+                    continue;
                 }
-            }
-            i++;
+                Console.WriteLine($"Two pairs: {combo[0].Name} {combo[1].Name} and {combo[2].Name} {combo[3].Name}");
+                return true;
+            }            
         }
         return false;
     }
@@ -251,24 +216,30 @@ class Program
     static private bool FullHouse(List<Card> hand)
     {
         // Same as with two pairs, but add a check for 3 similar elements
-        int i = 0;
+        List<Card> combo = new List<Card>();
         foreach (var card in Counter(hand))
         {
             if (card.Value == 2 || card.Value == 3)
             {
-                List<Card> combo = hand.FindAll(a => a.Value == card.Key);
-                i++;
-                foreach (var card2 in Counter(hand).Skip(i))
+                combo.AddRange(hand.FindAll(a => a.Value == card.Key));
+                if (combo.Count == 2 || combo.Count == 3)
                 {
-                    if (card2.Value == 3 || card2.Value == 2)
-                    {
-                        combo.AddRange(hand.FindAll(a => a.Value == card2.Key));
-                        Console.WriteLine($"Full House: {combo[0].Name} {combo[1].Name} {combo[2].Name} {combo[3].Name} {combo[4].Name}");
-                        return true;
-                    }
+                    //a = combo.Count;
+                    continue;
                 }
+                // An error occurs here when the full house function reads 2 identical cards 2 times instead of 3.
+                // Which is why the combo List does not have enough element to display.
+                // Such a case is processed and the full house is considered failed.
+                try
+                {
+                    Console.WriteLine($"Full House: {combo[0].Name} {combo[1].Name} {combo[2].Name} {combo[3].Name} {combo[4].Name}");
+                }
+                catch
+                {
+                    return false;
+                }
+                return true;
             }
-            i++;
         }
         return false;
     }
